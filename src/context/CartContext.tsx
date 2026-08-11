@@ -28,27 +28,47 @@ const CartContext = createContext<CartContextType | undefined>(
   undefined,
 );
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
+    try {
+      const savedCart = localStorage.getItem("cart");
 
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+
+        if (Array.isArray(parsedCart)) {
+          setCartItems(parsedCart);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load cart:", error);
+      localStorage.removeItem("cart");
     }
 
     setIsLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("cart", JSON.stringify(cartItems));
+    if (!isLoaded) {
+      return;
     }
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(cartItems),
+    );
   }, [cartItems, isLoaded]);
 
-  function addToCart(item: Omit<CartItem, "quantity">) {
+  function addToCart(
+    item: Omit<CartItem, "quantity">,
+  ) {
     setCartItems((currentItems) => {
       const existingItem = currentItems.find(
         (cartItem) => cartItem.id === item.id,
@@ -81,7 +101,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  function updateQuantity(id: number, quantity: number) {
+  function updateQuantity(
+    id: number,
+    quantity: number,
+  ) {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
@@ -90,7 +113,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCartItems((currentItems) =>
       currentItems.map((item) =>
         item.id === id
-          ? { ...item, quantity }
+          ? {
+              ...item,
+              quantity,
+            }
           : item,
       ),
     );
@@ -132,4 +158,3 @@ export function useCart() {
 
   return context;
 }
-
