@@ -1,45 +1,29 @@
 import Link from "next/link";
 
-const products = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    category: "Electronics",
-    price: "$129.00",
-  },
-  {
-    id: 2,
-    name: "Minimal Backpack",
-    category: "Fashion",
-    price: "$79.00",
-  },
-  {
-    id: 3,
-    name: "Smart Desk Lamp",
-    category: "Home & Living",
-    price: "$59.00",
-  },
-  {
-    id: 4,
-    name: "Mechanical Keyboard",
-    category: "Electronics",
-    price: "$149.00",
-  },
-  {
-    id: 5,
-    name: "Everyday Sneakers",
-    category: "Fashion",
-    price: "$99.00",
-  },
-  {
-    id: 6,
-    name: "Travel Bottle",
-    category: "Sports",
-    price: "$29.00",
-  },
-];
+type Product = {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  imageUrl: string | null;
+};
 
-export default function ProductsPage() {
+async function getProducts(): Promise<Product[]> {
+  const response = await fetch("${process.env.NEXT_PUBLIC_API_URL}/products", {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch products");
+  }
+
+  return response.json();
+}
+
+export default async function ProductsPage() {
+  const products = await getProducts();
+
   return (
     <main className="min-h-screen bg-white text-zinc-950">
       <header className="border-b border-zinc-200">
@@ -85,23 +69,27 @@ export default function ProductsPage() {
               className="overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:shadow-md"
             >
               <div className="flex aspect-square items-center justify-center bg-zinc-100">
-                <span className="text-sm text-zinc-400">
-                  Product image
-                </span>
+                {product.imageUrl ? (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm text-zinc-400">
+                    Product image
+                  </span>
+                )}
               </div>
 
               <div className="p-6">
-                <p className="text-sm text-zinc-500">
-                  {product.category}
-                </p>
+                <p className="text-sm text-zinc-500">{product.category}</p>
 
-                <h2 className="mt-2 text-lg font-semibold">
-                  {product.name}
-                </h2>
+                <h2 className="mt-2 text-lg font-semibold">{product.name}</h2>
 
                 <div className="mt-5 flex items-center justify-between">
                   <span className="font-medium">
-                    {product.price}
+                    ${Number(product.price).toFixed(2)}
                   </span>
 
                   <Link

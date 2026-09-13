@@ -31,7 +31,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
       try {
         const response = await fetch(
-          "http://localhost:4000/products/" + id
+          `${process.env.NEXT_PUBLIC_API_URL}/products/${id}`
         );
 
         if (!response.ok) {
