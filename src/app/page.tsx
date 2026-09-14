@@ -1,7 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
+
+type Product = {
+  id: number;
+  name: string;
+  category: string;
+  price: string;
+  imageUrl: string | null;
+};
 
 const categories = [
   {
@@ -22,26 +31,28 @@ const categories = [
   },
 ];
 
-const featuredProducts = [
-  {
-    name: "Wireless Headphones",
-    category: "Electronics",
-    price: "$129.00",
-  },
-  {
-    name: "Minimal Backpack",
-    category: "Fashion",
-    price: "$79.00",
-  },
-  {
-    name: "Smart Desk Lamp",
-    category: "Home & Living",
-    price: "$59.00",
-  },
-];
-
 export default function Home() {
   const { cartCount } = useCart();
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function loadFeatured() {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) return;
+
+        const data: Product[] = await response.json();
+        setFeaturedProducts(data.slice(0, 3));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    loadFeatured();
+  }, []);
 
   return (
     <main className="min-h-screen bg-white text-zinc-950">
@@ -191,13 +202,21 @@ hover:bg-zinc-100"
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {featuredProducts.map((product) => (
               <article
-                key={product.name}
+                key={product.id}
                 className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
               >
                 <div className="flex aspect-square items-center justify-center bg-zinc-100">
-                  <span className="text-sm text-zinc-400">
-                    Product image
-                  </span>
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm text-zinc-400">
+                      Product image
+                    </span>
+                  )}
                 </div>
 
                 <div className="p-6">
@@ -211,11 +230,11 @@ hover:bg-zinc-100"
 
                   <div className="mt-5 flex items-center justify-between">
                     <span className="font-medium">
-                      {product.price}
+                      ${Number(product.price).toFixed(2)}
                     </span>
 
                     <Link
-                      href="/products"
+                      href={`/products/${product.id}`}
                       className="text-sm font-medium underline underline-offset-4"
                     >
                       View product
