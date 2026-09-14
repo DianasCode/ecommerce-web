@@ -59,6 +59,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       id: product.id,
       name: product.name,
       price: Number(product.price),
+      imageUrl: product.imageUrl,
     });
 
     setAdded(true);

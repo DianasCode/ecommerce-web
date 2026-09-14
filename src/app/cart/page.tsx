@@ -149,8 +149,16 @@ export default function CartPage() {
                   key={item.id}
                   className="flex gap-5 rounded-2xl border border-zinc-200 p-5"
                 >
-                  <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-zinc-100">
-                    <span className="text-xs text-zinc-400">Image</span>
+                  <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-xs text-zinc-400">Image</span>
+                    )}
                   </div>
 
                   <div className="flex flex-1 flex-col justify-between">
