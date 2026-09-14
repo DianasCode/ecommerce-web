@@ -7,7 +7,7 @@ const categories = [
     description: "Smart devices and accessories",
   },
   {
-    slug: "home-&-living",
+    slug: "home-living",
     name: "Home & Living",
     description: "Everything for your space",
   },

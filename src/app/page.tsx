@@ -153,6 +153,9 @@ hover:bg-zinc-100"
               key={category.name}
               href={`/categories/${category.name
                 .toLowerCase()
+                .replace(/&/g, "")
+                .replace(/\s+/g, " ")
+                .trim()
                 .replaceAll(" ", "-")}`}
               className="group rounded-2xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm"
             >

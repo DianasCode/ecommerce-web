@@ -15,7 +15,7 @@ type Product = {
 
 const categoryNames: Record<string, string> = {
   electronics: "Electronics",
-  "home-&-living": "Home & Living",
+  "home-living": "Home & Living",
   fashion: "Fashion",
   sports: "Sports",
 };
