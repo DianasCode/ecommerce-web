@@ -47,7 +47,7 @@ export default function CategoryPage({
       }
 
       try {
-        const response = await fetch("${process.env.NEXT_PUBLIC_API_URL}/products");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
 
         if (!response.ok) {
           throw new Error("Failed to load products");

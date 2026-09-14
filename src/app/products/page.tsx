@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useCart } from "../../context/CartContext";
 
 type Product = {
   id: number;
@@ -9,20 +13,36 @@ type Product = {
   imageUrl: string | null;
 };
 
-async function getProducts(): Promise<Product[]> {
-  const response = await fetch("${process.env.NEXT_PUBLIC_API_URL}/products", {
-    cache: "no-store",
-  });
+export default function ProductsPage() {
+  const { cartCount } = useCart();
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
-  }
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  return response.json();
-}
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+          cache: "no-store",
+        });
 
-export default async function ProductsPage() {
-  const products = await getProducts();
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+
+        const data: Product[] = await response.json();
+        setProducts(data);
+      } catch (err) {
+        console.error(err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   return (
     <main className="min-h-screen bg-white text-zinc-950">
@@ -42,7 +62,7 @@ export default async function ProductsPage() {
             </Link>
 
             <Link href="/cart" className="hover:text-zinc-500">
-              Cart (0)
+              Cart ({cartCount})
             </Link>
           </nav>
         </div>
@@ -62,47 +82,55 @@ export default async function ProductsPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <article
-              key={product.id}
-              className="overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:shadow-md"
-            >
-              <div className="flex aspect-square items-center justify-center bg-zinc-100">
-                {product.imageUrl ? (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="text-sm text-zinc-400">
-                    Product image
-                  </span>
-                )}
-              </div>
-
-              <div className="p-6">
-                <p className="text-sm text-zinc-500">{product.category}</p>
-
-                <h2 className="mt-2 text-lg font-semibold">{product.name}</h2>
-
-                <div className="mt-5 flex items-center justify-between">
-                  <span className="font-medium">
-                    ${Number(product.price).toFixed(2)}
-                  </span>
-
-                  <Link
-                    href={`/products/${product.id}`}
-                    className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800"
-                  >
-                    View
-                  </Link>
+        {loading ? (
+          <p className="mt-12 text-zinc-500">Loading products...</p>
+        ) : error ? (
+          <p className="mt-12 text-red-600">
+            Failed to load products. Is the backend running?
+          </p>
+        ) : (
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((product) => (
+              <article
+                key={product.id}
+                className="overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:shadow-md"
+              >
+                <div className="flex aspect-square items-center justify-center bg-zinc-100">
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm text-zinc-400">
+                      Product image
+                    </span>
+                  )}
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
+
+                <div className="p-6">
+                  <p className="text-sm text-zinc-500">{product.category}</p>
+
+                  <h2 className="mt-2 text-lg font-semibold">{product.name}</h2>
+
+                  <div className="mt-5 flex items-center justify-between">
+                    <span className="font-medium">
+                      ${Number(product.price).toFixed(2)}
+                    </span>
+
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800"
+                    >
+                      View
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
