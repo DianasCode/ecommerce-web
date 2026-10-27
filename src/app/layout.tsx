@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "../context/CartContext";
@@ -5,6 +6,9 @@ import { CartProvider } from "../context/CartContext";
 export const metadata: Metadata = {
   title: "SHOP",
   description: "Modern e-commerce platform",
+  verification: {
+    google: "bvQJXtkv86hyBVOrHLRVfOtDAWSAS9PJSHzoI8Odt48",
+  },
 };
 
 export default function RootLayout({
@@ -20,4 +24,3 @@ export default function RootLayout({
     </html>
   );
 }
-
